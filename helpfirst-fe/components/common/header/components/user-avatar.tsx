@@ -11,10 +11,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { googleLogout } from "@react-oauth/google";
 import Auth from "@/components/auth/auth";
 import { PersonIcon } from "@radix-ui/react-icons";
-import axios from "axios";
+import { clientAxios } from "@/utils/axios";
 
 export const getUserFallbackHandler = (
-  fullname: string | null | undefined,
+  fullname: string | null | undefined
 ): string => {
   if (!fullname) return "";
 
@@ -77,7 +77,7 @@ export default function UserAvatar() {
                     description: "You already signout",
                     variant: "default",
                   });
-                  await axios.post("/api/auth/signout");
+                  await clientAxios.post("/api/auth/signout");
                 }}
               >
                 Signout

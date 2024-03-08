@@ -15,7 +15,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { useToast } from "@/components/ui/use-toast";
 import { Dispatch, SetStateAction } from "react";
 import { AuthType } from "./auth";
-import axios from "axios";
+import { clientAxios } from "@/utils/axios";
 
 interface SigninDialogProps {
   setAuthType: Dispatch<SetStateAction<string>>;
@@ -52,7 +52,7 @@ export function SigninDialog({ setAuthType }: SigninDialogProps) {
           message,
           user: { id, avatar, email, name },
         },
-      } = await axios.post("/api/auth/signin", values);
+      } = await clientAxios.post("/api/auth/signin", values);
       setUser({ name: name, id: id, email: email, image: avatar });
       setAccessToken(accessToken);
       toast({
@@ -80,7 +80,7 @@ export function SigninDialog({ setAuthType }: SigninDialogProps) {
             message,
             user: { id, avatar, email, name },
           },
-        } = await axios.post("/api/auth/google", {
+        } = await clientAxios.post("/api/auth/google", {
           token: access_token,
         });
         setUser({ name: name, id: id, email: email, image: avatar });

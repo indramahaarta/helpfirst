@@ -11,13 +11,12 @@ import {
 import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios";
 import { GeoLocation } from "../home";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import ReportFormInput from "./report-form-input";
 import ReportFormSelect from "./report-form-select";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ReportResponse } from "@/model/model";
+import { clientAxios } from "@/utils/axios";
 
 interface ReportFormProps {
   location: GeoLocation;
@@ -77,7 +76,7 @@ const ReportForm = ({
     try {
       const {
         data: { message, report },
-      } = await axios.post("/api/report", values);
+      } = await clientAxios.post("/api/report", values);
       onSubmit((state) => [...state, report]);
       toast({
         title: "Success",

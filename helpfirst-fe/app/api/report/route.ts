@@ -22,9 +22,9 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams
-  const lat = searchParams.get('lat')
-  const lng = searchParams.get('lng')
+  const searchParams = req.nextUrl.searchParams;
+  const lat = searchParams.get("lat");
+  const lng = searchParams.get("lng");
   try {
     const res = await serverAxios.get(`/api/report?lat=${lat}&lng=${lng}`, {
       headers: {

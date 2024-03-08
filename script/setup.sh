@@ -5,7 +5,7 @@ echo "============================================================"
 
 copy_env_file() {
     local dir=$1
-    local env_file_name=${2:-".env"}
+    local env_file_name=$2
 
     cp .env "./$dir/$env_file_name"
     echo "Environment file copied to $dir/$env_file_name"
@@ -19,7 +19,7 @@ declare -a repos=(
 )
 
 for repo in "${repos[@]}"; do
-    IFS='|' read -r dir repo_url env_file_name <<< "$repo"
+    IFS='|' read -r dir env_file_name <<< "$repo"
     copy_env_file "$dir" "$env_file_name"
 done
 

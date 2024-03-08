@@ -15,7 +15,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { useToast } from "@/components/ui/use-toast";
 import { Dispatch, SetStateAction } from "react";
 import { AuthType } from "./auth";
-import axios from "axios";
+import { clientAxios } from "@/utils/axios";
 
 interface SignupDialogProps {
   setAuthType: Dispatch<SetStateAction<string>>;
@@ -44,7 +44,7 @@ export function SignupDialog({ setAuthType }: SignupDialogProps) {
 
   const signupWithCredentialHandler = async (
     values: SignupForm,
-    { setSubmitting }: FormikHelpers<SignupForm>,
+    { setSubmitting }: FormikHelpers<SignupForm>
   ) => {
     setSubmitting(true);
     try {
@@ -54,7 +54,7 @@ export function SignupDialog({ setAuthType }: SignupDialogProps) {
           message,
           user: { id, avatar, email, name },
         },
-      } = await axios.post("/api/auth/signup", values);
+      } = await clientAxios.post("/api/auth/signup", values);
       setUser({ name: name, id: id, email: email, image: avatar });
       setAccessToken(accessToken);
       toast({
@@ -81,7 +81,7 @@ export function SignupDialog({ setAuthType }: SignupDialogProps) {
             accessToken,
             user: { id, avatar, email, name },
           },
-        } = await axios.post("/api/auth/google", {
+        } = await clientAxios.post("/api/auth/google", {
           token: access_token,
         });
         setUser({ name: name, id: id, email: email, image: avatar });

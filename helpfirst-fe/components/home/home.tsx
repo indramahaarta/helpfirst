@@ -14,8 +14,8 @@ import { Button } from "../ui/button";
 import useAuthStore from "@/store/useAuthStore";
 import { useToast } from "../ui/use-toast";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
-import axios from "axios";
 import { ReportResponse } from "@/model/model";
+import { clientAxios } from "@/utils/axios";
 
 export interface GeoLocation {
   lat: number;
@@ -88,11 +88,11 @@ const Home: FC = () => {
     try {
       const {
         data: { report },
-      }: { data: { report: ReportResponse[] } } = await axios.get(
+      }: { data: { report: ReportResponse[] } } = await clientAxios.get(
         `/api/report?lat=${mapFocusPoint.lat}&lng=${mapFocusPoint.lng}`
       );
       setReport(report);
-    } catch {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "failed to fetch data in this location",
