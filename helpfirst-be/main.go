@@ -16,9 +16,9 @@ type Message struct {
 	URL string `json:"url"`
 }
 
-// @title Segment3d App API Documentation
+// @title HelpFirst App API Documentation
 // @version 1.0
-// @description This is a documentation for Segment3d App API
+// @description This is a documentation for HelpFirst App API
 
 // @host localhost:8080
 // @BasePath /api

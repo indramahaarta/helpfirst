@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a documentation for Segment3d App API",
-        "title": "Segment3d App API Documentation",
+        "description": "This is a documentation for HelpFirst App API",
+        "title": "HelpFirst App API Documentation",
         "contact": {},
         "version": "1.0"
     },

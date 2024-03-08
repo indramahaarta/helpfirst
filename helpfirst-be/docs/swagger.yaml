@@ -163,8 +163,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: This is a documentation for Segment3d App API
-  title: Segment3d App API Documentation
+  description: This is a documentation for HelpFirst App API
+  title: HelpFirst App API Documentation
   version: "1.0"
 paths:
   /auth/google:
