@@ -27,7 +27,7 @@ definitions:
       message:
         type: string
       report:
-        $ref: '#/definitions/db.Reports'
+        $ref: '#/definitions/api.ReportData'
     type: object
   api.ErrorResponse:
     properties:
@@ -40,8 +40,47 @@ definitions:
         type: string
       report:
         items:
-          $ref: '#/definitions/db.Reports'
+          $ref: '#/definitions/api.ReportData'
         type: array
+    type: object
+  api.ReportData:
+    properties:
+      address:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      lat:
+        type: number
+      level:
+        type: string
+      lng:
+        type: number
+      status:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      uid:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/api.UserResponse'
+    type: object
+  api.UpdateReportStatusRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  api.UpdateReportStatusResponse:
+    properties:
+      message:
+        type: string
+      report:
+        $ref: '#/definitions/api.ReportData'
     type: object
   api.UserResponse:
     properties:
@@ -120,29 +159,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/api.UserResponse'
-    type: object
-  db.Reports:
-    properties:
-      address:
-        type: string
-      createdAt:
-        type: string
-      id:
-        type: string
-      lat:
-        type: number
-      level:
-        type: string
-      lng:
-        type: number
-      title:
-        type: string
-      type:
-        type: string
-      uid:
-        type: string
-      updatedAt:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -323,6 +339,53 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a report
+      tags:
+      - reports
+  /report/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of a report by its ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update report status information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateReportStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated report status
+          schema:
+            $ref: '#/definitions/api.UpdateReportStatusResponse'
+        "400":
+          description: 'Bad Request: Invalid request parameters'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "401":
+          description: 'Unauthorized: Invalid or missing token'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "403":
+          description: 'Forbidden: User not allowed to update this report'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Report not found'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update report status
       tags:
       - reports
 securityDefinitions:

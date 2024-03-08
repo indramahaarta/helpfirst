@@ -276,6 +276,77 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/report/{id}/status": {
+            "patch": {
+                "description": "Update the status of a report by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Update report status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update report status information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UpdateReportStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated report status",
+                        "schema": {
+                            "$ref": "#/definitions/api.UpdateReportStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid or missing token",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: User not allowed to update this report",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Report not found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -317,7 +388,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "report": {
-                    "$ref": "#/definitions/db.Reports"
+                    "$ref": "#/definitions/api.ReportData"
                 }
             }
         },
@@ -338,8 +409,68 @@ const docTemplate = `{
                 "report": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/db.Reports"
+                        "$ref": "#/definitions/api.ReportData"
                     }
+                }
+            }
+        },
+        "api.ReportData": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/api.UserResponse"
+                }
+            }
+        },
+        "api.UpdateReportStatusRequest": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.UpdateReportStatusResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "report": {
+                    "$ref": "#/definitions/api.ReportData"
                 }
             }
         },
@@ -458,41 +589,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/api.UserResponse"
-                }
-            }
-        },
-        "db.Reports": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lat": {
-                    "type": "number"
-                },
-                "level": {
-                    "type": "string"
-                },
-                "lng": {
-                    "type": "number"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "uid": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
                 }
             }
         }

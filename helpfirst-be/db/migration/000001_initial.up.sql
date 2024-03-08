@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS "reports" (
     "title" VARCHAR(255) NOT NULL,
     "type" VARCHAR(255) NOT NULL,
     "level" VARCHAR(255) NOT NULL,
+    "status" VARCHAR(255) NOT NULL,
     "address" TEXT NOT NULL,
     "lat" FLOAT NOT NULL,
     "lng" FLOAT NOT NULL,

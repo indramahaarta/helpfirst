@@ -28,6 +28,7 @@ const Home: FC = () => {
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(
     null
   );
+  const { user } = useAuthStore();
   const [report, setReport] = useState<ReportResponse[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const { toast } = useToast();
@@ -91,7 +92,9 @@ const Home: FC = () => {
       }: { data: { report: ReportResponse[] } } = await clientAxios.get(
         `/api/report?lat=${mapFocusPoint.lat}&lng=${mapFocusPoint.lng}`
       );
-      setReport(report);
+      if (report) {
+        setReport(report);
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -162,6 +165,24 @@ const Home: FC = () => {
         setAddress("");
       }
     });
+  };
+
+  const setAsResolvedHandler = async (id: string) => {
+    try {
+      await clientAxios.patch(`/api/report/${id}/status`, { status: "closed" });
+      setSelectedReport(null);
+      setReport((state) => state.filter((report) => report.id != id));
+      toast({
+        title: "Success",
+        description: "success to resolve the report",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "there is an error occured",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -323,6 +344,16 @@ const Home: FC = () => {
                   <p className="col-span-2">{selectedReport.lng}</p>
                 </div>
               </div>
+              {user?.id === selectedReport.uid && (
+                <div className="mt-2">
+                  <Button
+                    onClick={() => setAsResolvedHandler(selectedReport.id)}
+                    size="sm"
+                  >
+                    Set As Resolved
+                  </Button>
+                </div>
+              )}
             </div>
           </InfoWindow>
         )}

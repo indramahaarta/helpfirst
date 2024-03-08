@@ -60,8 +60,9 @@ func (server *Server) setupRouter() {
 	router.POST("/api/auth/google", server.google)
 
 	// report api
-	authenticatedRouter.POST("/api/report", server.createReport)
 	router.GET("/api/report", server.getReport)
+	authenticatedRouter.POST("/api/report", server.createReport)
+	authenticatedRouter.PATCH("/api/report/:id/status", server.updateReportStatus)
 
 	server.router = router
 }

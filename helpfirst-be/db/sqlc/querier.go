@@ -13,9 +13,11 @@ import (
 type Querier interface {
 	CreateReport(ctx context.Context, arg CreateReportParams) (Reports, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (Users, error)
-	GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBetweenLatAndLngParams) ([]Reports, error)
+	GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBetweenLatAndLngParams) ([]GetReportBetweenLatAndLngRow, error)
+	GetReportById(ctx context.Context, arg GetReportByIdParams) (Reports, error)
 	GetUserByEmail(ctx context.Context, email string) (Users, error)
 	GetUserById(ctx context.Context, uid uuid.UUID) (Users, error)
+	UpdateReportStatusById(ctx context.Context, arg UpdateReportStatusByIdParams) (Reports, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (Users, error)
 }
 

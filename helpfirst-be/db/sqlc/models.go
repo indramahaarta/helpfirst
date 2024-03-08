@@ -17,6 +17,7 @@ type Reports struct {
 	Title     string    `json:"title"`
 	Type      string    `json:"type"`
 	Level     string    `json:"level"`
+	Status    string    `json:"status"`
 	Address   string    `json:"address"`
 	Lat       float64   `json:"lat"`
 	Lng       float64   `json:"lng"`

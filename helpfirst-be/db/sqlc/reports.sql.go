@@ -7,6 +7,8 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -18,11 +20,12 @@ INSERT INTO "reports" (
         type,
         level,
         address,
+        status,
         lat,
         lng
     )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, uid, title, type, level, address, lat, lng, "createdAt", "updatedAt"
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, uid, title, type, level, status, address, lat, lng, "createdAt", "updatedAt"
 `
 
 type CreateReportParams struct {
@@ -31,6 +34,7 @@ type CreateReportParams struct {
 	Type    string    `json:"type"`
 	Level   string    `json:"level"`
 	Address string    `json:"address"`
+	Status  string    `json:"status"`
 	Lat     float64   `json:"lat"`
 	Lng     float64   `json:"lng"`
 }
@@ -42,6 +46,7 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (Rep
 		arg.Type,
 		arg.Level,
 		arg.Address,
+		arg.Status,
 		arg.Lat,
 		arg.Lng,
 	)
@@ -52,6 +57,7 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (Rep
 		&i.Title,
 		&i.Type,
 		&i.Level,
+		&i.Status,
 		&i.Address,
 		&i.Lat,
 		&i.Lng,
@@ -62,10 +68,13 @@ func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (Rep
 }
 
 const getReportBetweenLatAndLng = `-- name: GetReportBetweenLatAndLng :many
-SELECT id, uid, title, type, level, address, lat, lng, "createdAt", "updatedAt"
-FROM "reports"
-WHERE lat BETWEEN $1 AND $2
-    AND lng BETWEEN $3 AND $4
+SELECT r.id, r.uid, r.title, r.type, r.level, r.status, r.address, r.lat, r.lng, r."createdAt", r."updatedAt",
+    u.name
+FROM "reports" as r
+    LEFT JOIN "users" AS u on r.uid = u.uid
+WHERE r.lat BETWEEN $1 AND $2
+    AND r.lng BETWEEN $3 AND $4
+    AND status = 'opened'
 `
 
 type GetReportBetweenLatAndLngParams struct {
@@ -75,7 +84,22 @@ type GetReportBetweenLatAndLngParams struct {
 	Lng_2 float64 `json:"lng_2"`
 }
 
-func (q *Queries) GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBetweenLatAndLngParams) ([]Reports, error) {
+type GetReportBetweenLatAndLngRow struct {
+	ID        uuid.UUID      `json:"id"`
+	Uid       uuid.UUID      `json:"uid"`
+	Title     string         `json:"title"`
+	Type      string         `json:"type"`
+	Level     string         `json:"level"`
+	Status    string         `json:"status"`
+	Address   string         `json:"address"`
+	Lat       float64        `json:"lat"`
+	Lng       float64        `json:"lng"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	Name      sql.NullString `json:"name"`
+}
+
+func (q *Queries) GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBetweenLatAndLngParams) ([]GetReportBetweenLatAndLngRow, error) {
 	rows, err := q.db.QueryContext(ctx, getReportBetweenLatAndLng,
 		arg.Lat,
 		arg.Lat_2,
@@ -86,20 +110,22 @@ func (q *Queries) GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBe
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Reports{}
+	items := []GetReportBetweenLatAndLngRow{}
 	for rows.Next() {
-		var i Reports
+		var i GetReportBetweenLatAndLngRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Uid,
 			&i.Title,
 			&i.Type,
 			&i.Level,
+			&i.Status,
 			&i.Address,
 			&i.Lat,
 			&i.Lng,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -112,4 +138,69 @@ func (q *Queries) GetReportBetweenLatAndLng(ctx context.Context, arg GetReportBe
 		return nil, err
 	}
 	return items, nil
+}
+
+const getReportById = `-- name: GetReportById :one
+SELECT id, uid, title, type, level, status, address, lat, lng, "createdAt", "updatedAt"
+FROM reports
+WHERE id = $1
+    AND uid = $2
+LIMIT 1
+`
+
+type GetReportByIdParams struct {
+	ID  uuid.UUID `json:"id"`
+	Uid uuid.UUID `json:"uid"`
+}
+
+func (q *Queries) GetReportById(ctx context.Context, arg GetReportByIdParams) (Reports, error) {
+	row := q.db.QueryRowContext(ctx, getReportById, arg.ID, arg.Uid)
+	var i Reports
+	err := row.Scan(
+		&i.ID,
+		&i.Uid,
+		&i.Title,
+		&i.Type,
+		&i.Level,
+		&i.Status,
+		&i.Address,
+		&i.Lat,
+		&i.Lng,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateReportStatusById = `-- name: UpdateReportStatusById :one
+UPDATE reports
+SET status = $3
+WHERE id = $1
+    AND uid = $2
+RETURNING id, uid, title, type, level, status, address, lat, lng, "createdAt", "updatedAt"
+`
+
+type UpdateReportStatusByIdParams struct {
+	ID     uuid.UUID `json:"id"`
+	Uid    uuid.UUID `json:"uid"`
+	Status string    `json:"status"`
+}
+
+func (q *Queries) UpdateReportStatusById(ctx context.Context, arg UpdateReportStatusByIdParams) (Reports, error) {
+	row := q.db.QueryRowContext(ctx, updateReportStatusById, arg.ID, arg.Uid, arg.Status)
+	var i Reports
+	err := row.Scan(
+		&i.ID,
+		&i.Uid,
+		&i.Title,
+		&i.Type,
+		&i.Level,
+		&i.Status,
+		&i.Address,
+		&i.Lat,
+		&i.Lng,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
